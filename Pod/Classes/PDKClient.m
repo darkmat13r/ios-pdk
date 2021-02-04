@@ -208,20 +208,16 @@ static NSString * const kPDKPinterestWebOAuthURLString = @"https://api.pinterest
         // check to see if the Pinterest app is installed
         NSURL *oauthURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", kPDKPinterestAppOAuthURLString, [params _PDK_queryStringValue]]];
         
-        if ([[UIApplication sharedApplication] canOpenURL:oauthURL]) {
-            [PDKClient openURL:oauthURL fromViewController:presentingViewController];
-        } else {
-            NSString *redirectURL = [NSString stringWithFormat:@"pdk%@://", self.appId];
-            params = @{@"client_id" : self.appId,
-                       @"scope" : permissionsString,
-                       @"redirect_uri" : redirectURL,
-                       @"response_type": @"token",
-                       };
-            
-            // open the web oauth
-            oauthURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", kPDKPinterestWebOAuthURLString, [params _PDK_queryStringValue]]];
-            [PDKClient openURL:oauthURL fromViewController:presentingViewController];
-        }
+        NSString *redirectURL = [NSString stringWithFormat:@"pdk%@://", self.appId];
+        params = @{@"client_id" : self.appId,
+                   @"scope" : permissionsString,
+                   @"redirect_uri" : redirectURL,
+                   @"response_type": @"token",
+                   };
+        
+        // open the web oauth
+        oauthURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", kPDKPinterestWebOAuthURLString, [params _PDK_queryStringValue]]];
+        [PDKClient openURL:oauthURL fromViewController:presentingViewController];
     } else if (silent && failureBlock) {
         // silent was yes, but we did not have a cached token. that counts as a failure.
         failureBlock(nil);
