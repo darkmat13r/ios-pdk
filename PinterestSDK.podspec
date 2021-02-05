@@ -26,9 +26,6 @@ Pod::Spec.new do |s|
 
   s.source_files = 'Pod/Classes/*.{h,m}'
 
-  s.dependency 'AFNetworking/Reachability', '~> 3.0'
-  s.dependency 'AFNetworking/Serialization', '~> 3.0'
-  s.dependency 'AFNetworking/Security', '~> 3.0'
-  s.dependency 'AFNetworking/NSURLSession', '~> 3.0'
+  s.dependency 'AFNetworking', :git => 'https://github.com/ElfSundae/CocoaPods-Specs.git'
   s.dependency 'SAMKeychain'
 end
