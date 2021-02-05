@@ -313,6 +313,71 @@ static void defaultFailureAction(PDKClientFailure failureBlock, NSError *error)
 
 #pragma mark - Endpoints
 
+- (void)getPath:(NSString *)path
+     parameters:(NSDictionary *)parameters
+    withSuccess:(PDKClientSuccess)successBlock
+     andFailure:(PDKClientFailure)failureBlock;
+{
+    NSString *urlString = [[NSURL URLWithString:path relativeToURL:self.baseURL] absoluteString];
+    [self GET:urlString parameters:[self signParameters:parameters] progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        defaultSuccessAction(successBlock, task, responseObject, parameters, path);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        defaultFailureAction(failureBlock, error);
+    }];
+
+}
+
+- (void)postPath:(NSString *)path
+      parameters:(NSDictionary *)parameters
+     withSuccess:(PDKClientSuccess)successBlock
+      andFailure:(PDKClientFailure)failureBlock;
+{
+    NSString *urlString = [[NSURL URLWithString:path relativeToURL:self.baseURL] absoluteString];
+    [self POST:urlString parameters:[self signParameters:parameters] progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        defaultSuccessAction(successBlock, task, responseObject, parameters, path);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        defaultFailureAction(failureBlock, error);
+    }];
+}
+
+- (void)putPath:(NSString *)path
+     parameters:(NSDictionary *)parameters
+    withSuccess:(PDKClientSuccess)successBlock
+     andFailure:(PDKClientFailure)failureBlock;
+{
+    NSString *urlString = [[NSURL URLWithString:path relativeToURL:self.baseURL] absoluteString];
+    [self PUT:urlString parameters:[self signParameters:parameters] success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        defaultSuccessAction(successBlock, task, responseObject, parameters, path);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        defaultFailureAction(failureBlock, error);
+    }];
+}
+
+- (void)patchPath:(NSString *)path
+     parameters:(NSDictionary *)parameters
+    withSuccess:(PDKClientSuccess)successBlock
+     andFailure:(PDKClientFailure)failureBlock;
+{
+    NSString *urlString = [[NSURL URLWithString:path relativeToURL:self.baseURL] absoluteString];
+    [self PATCH:urlString parameters:[self signParameters:parameters] success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        defaultSuccessAction(successBlock, task, responseObject, parameters, path);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        defaultFailureAction(failureBlock, error);
+    }];
+}
+
+- (void)deletePath:(NSString *)path
+        parameters:(NSDictionary *)parameters
+       withSuccess:(PDKClientSuccess)successBlock
+        andFailure:(PDKClientFailure)failureBlock;
+{
+    NSString *urlString = [[NSURL URLWithString:path relativeToURL:self.baseURL] absoluteString];
+    [self DELETE:urlString parameters:[self signParameters:parameters] success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        defaultSuccessAction(successBlock, task, responseObject, parameters, path);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        defaultFailureAction(failureBlock, error);
+    }];
+}
 
 #pragma mark - AFHTTPSessionManager overrides
 
@@ -551,6 +616,39 @@ static void defaultFailureAction(PDKClientFailure failureBlock, NSError *error)
                       andFailure:failureBlock];
 }
 
+- (void)createPinWithImageData:(NSData *)imageData
+                          link:(NSURL *)link
+                       onBoard:(NSString *)boardId
+                   description:(NSString *)pinDescription
+                      progress:(PDKPinUploadProgress)progressBlock
+                   withSuccess:(PDKClientSuccess)successBlock
+                    andFailure:(PDKClientFailure)failureBlock
+{
+    NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
+    parameters[@"board"] = boardId;
+    parameters[@"note"] = pinDescription;
+    if (link != nil) {
+        parameters[@"link"] = link;
+    }
 
+    NSString *path = @"pins/";
+    NSString *urlString = [[NSURL URLWithString:path relativeToURL:self.baseURL] absoluteString];
+    [self POST:urlString parameters:[self signParameters:parameters] constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        [formData appendPartWithFileData:imageData
+                                    name:@"image"
+                                fileName:@"image"
+                                mimeType:@"application/octet-stream"];
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        if (progressBlock && [uploadProgress totalUnitCount] > 0) {
+            CGFloat percentComplete = (CGFloat)[uploadProgress completedUnitCount]/(CGFloat)[uploadProgress totalUnitCount];
+            progressBlock(percentComplete);
+        }
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        defaultSuccessAction(successBlock, task, responseObject, parameters, path);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        defaultFailureAction(failureBlock, error);
+    }];
+
+}
 
 @end
