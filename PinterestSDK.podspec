@@ -26,6 +26,6 @@ Pod::Spec.new do |s|
 
   s.source_files = 'Pod/Classes/*.{h,m}'
 
-  s.dependency 'AFNetworking', '~> 3.0'
+  s.dependency 'AFNetworking', '~> 4.0'
   s.dependency 'SAMKeychain'
 end
